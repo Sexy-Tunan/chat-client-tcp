@@ -24,6 +24,7 @@ public class Main {
         // 发送登录消息包
         client.sendData(PacketUtils.buildPacket(Protocol.LOGIN_REQUEST_PROTOCOL_NUMBER, new LoginRequestPlayload(userName, password)));
         ParsedPacket parsedPacket = client.receivePacket();
+        System.out.println(parsedPacket);
         BroadcastHandler.handle(parsedPacket);
 
         ReceivedThread receivedThread = new ReceivedThread(client,true);
