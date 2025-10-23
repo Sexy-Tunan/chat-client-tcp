@@ -39,32 +39,25 @@ public class ChatClient {
 
 
     public ParsedPacket receivePacket() throws IOException {
-        byte[] header = new byte[6];
-        in.readFully(header); // 读取前6字节
-        System.out.println("Header bytes = " + Arrays.toString(header));
-
-        ByteBuffer bb = ByteBuffer.wrap(header);
-        bb.order(ByteOrder.BIG_ENDIAN);
-        int packetLength = bb.getInt();
-        short protocolId = bb.getShort();
-
-        System.out.printf("Decoded: packetLength=%d, protocolId=%d (unsigned=%d)%n",
-                packetLength, protocolId, (protocolId & 0xFFFF));
-
+        int packetLength = in.readInt();
+        short protocolId = in.readShort();
         byte[] data = new byte[packetLength - 2];
         in.readFully(data);
-        return new ParsedPacket(packetLength, protocolId, data);
-//        int packetLength = in.readInt();
-//        short protocolId = in.readShort();
-//        byte[] data = new byte[packetLength - 2];
-//        in.readFully(data);
 //
-//        return new ParsedPacket(packetLength,protocolId,data);
+        return new ParsedPacket(packetLength,protocolId,data);
     }
 
     public void sendData(byte[] data){
         try {
             out.write(data);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void close(){
+        try {
+            socket.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -20,7 +20,7 @@ public class Protocol {
     public static final short JOIN_CHANNEL_BROADCAST_PROTOCOL_NUMBER = 23001;
     public static final short QUIT_CHANNEL_BROADCAST_PROTOCOL_NUMBER = 23002;
 
-
+    public static final short LIMIT_WORLD_SEND_PROTOCOL_NUMBER = 30001;
 
 
 }

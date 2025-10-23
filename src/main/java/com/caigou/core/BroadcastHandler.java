@@ -1,6 +1,7 @@
 package com.caigou.core;
 
 import com.caigou.msg_format.CommonChannelUserPayload;
+import com.caigou.msg_format.CommonErrorPayload;
 import com.caigou.msg_format.ParsedPacket;
 import com.caigou.msg_format.broadcast.ChannelMsgBroadcastPayload;
 import com.caigou.msg_format.response.ChannelInfo;
@@ -19,7 +20,7 @@ public class BroadcastHandler {
 
 
     private static ObjectMapper mapper = new ObjectMapper();
-    public static void handle(ParsedPacket parsedPacket) throws IOException {
+    public static boolean handle(ParsedPacket parsedPacket) throws IOException {
 
         switch (parsedPacket.getProtocolId()) {
             case Protocol.Login_RESPONSE_PROTOCOL_NUMBER:
@@ -27,9 +28,14 @@ public class BroadcastHandler {
                 LoginResponsePayload loginResponsePayload = mapper.readValue(parsedPacket.getData(), LoginResponsePayload.class);
                 if (!loginResponsePayload.isState()){
                     System.out.println("登录失败：失败原因 --》" + loginResponsePayload.getReason());
+                    return false;
                 } else {
                     handleLoginResponse(loginResponsePayload);
+                    return true;
                 }
+            case Protocol.LIMIT_WORLD_SEND_PROTOCOL_NUMBER:
+                CommonErrorPayload commonErrorPayload = mapper.readValue(parsedPacket.getData(), CommonErrorPayload.class);
+                System.out.println(commonErrorPayload.getReason());
                 break;
 
 
@@ -77,6 +83,7 @@ public class BroadcastHandler {
 
             default:
         }
+        return true;
     }
 
 
@@ -106,6 +113,9 @@ public class BroadcastHandler {
     }
 
     private static void handleDeleteChannel(CommonChannelUserPayload payload){
+        if (payload.getChannel().equals(ChatClient.infoStorage.getCurrentChannel())){
+            ChatClient.infoStorage.setCurrentChannel("world");
+        }
         // 清除删除的频道信息
         ChatClient.infoStorage.getChannels().remove(payload.getChannel());
     }
@@ -117,6 +127,9 @@ public class BroadcastHandler {
     }
 
     private static void handleQuitChannel(CommonChannelUserPayload payload){
+        if (payload.getUser().equals(ChatClient.infoStorage.getCurrentUser()) && payload.getChannel().equals(ChatClient.infoStorage.getCurrentChannel())){
+            ChatClient.infoStorage.setCurrentChannel("world");
+        }
         ChannelInfo channelInfo = ChatClient.infoStorage.getChannels().get(payload.getChannel());
         channelInfo.getMembers().remove(payload.getUser());
     }

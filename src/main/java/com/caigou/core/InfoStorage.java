@@ -2,6 +2,8 @@ package com.caigou.core;
 
 import com.caigou.msg_format.response.ChannelInfo;
 
+import java.sql.Time;
+import java.util.Date;
 import java.util.Map;
 
 public class InfoStorage {
